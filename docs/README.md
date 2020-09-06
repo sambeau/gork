@@ -22,4 +22,4 @@ To clean the intermediary files (for checking into Git etc):
 
 Gork currently reads stdin (this will change)
 
-    ./gork test/gork.test
+    ./gork < test/test.gork
