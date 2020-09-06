@@ -1,2 +1,5 @@
 .DS_Store
 bin/**
+gork.n.go
+gork.y.go
+gork
