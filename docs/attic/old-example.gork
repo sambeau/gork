@@ -1,0 +1,30 @@
+game:
+	location hut ~ (dingy) hut:
+		is dark, smelly.
+		as:
+			A dingy hut with peeling wallpaper
+		end
+		has table in here ~ (kitchen) table:
+			isn't portable.
+			as:
+				An old, rickety wooden table with a small drawer
+			end
+			has drawer in here ~ (small) drawer:
+				is closed.
+				has gold-key in here ~ (gold) key:
+					as: A small gold key with an intricate design.
+					is portable.
+			end
+			has lamp on here ~ (brass) lamp:
+				is portable.
+				isn't lit.
+				as
+					if it isn't lit: 
+						A brass aladdin's lamp.
+					else:  
+						A brass aladdin's lamp.
+				end
+			end
+		end
+	end
+end

@@ -1,0 +1,35 @@
+// test file for gork
+
+game [
+
+	title "The Horror In The Hut"
+
+	by "Sam Phillips"
+	version 1.0
+	date "4th September 2020"
+
+	["
+		It was a dark and stormy night…
+		Rain poured hard on the cobbled streets of East Mantoré
+	"]
+	
+	start hut
+
+	location hut [
+		is scary, dark, not nice
+
+		"a ramshackle hut" 
+
+		//exits north kitchen
+	]
+
+	location kitchen [
+		is dark, dusty
+
+		"a dingy kitchen" 
+
+//		exits 
+//			south hut, 
+//			down basement
+	]
+]

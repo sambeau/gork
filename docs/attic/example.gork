@@ -1,0 +1,67 @@
+game [
+
+	has version 102
+	has created {today}
+	has copyright "(c) Sam Phillips - {created}"
+
+	define table [
+		is not portable.
+		as [ A wooden table ]
+		can not get [
+			as [it's too heavy to carry]
+		]
+	]
+
+	traits open|closed, lit|dark, portable|fixed, asleep|awake, happy|sad
+	states sated|hungry|starving, healthy|wounded|dead
+
+	location kitchen ~ (dingy) kitchen [
+		is dark, dusty.
+		as [
+			A {if not light [dark,]} dusty kitchen with peeling wallpaper
+		]
+		has table kitchen-table in here ~ (kitchen) table [
+			as [
+				An old, rickety wooden table with a small drawer
+			]
+			has drawer in here ~ (small) drawer [
+				is closed.
+				has gold-key in here ~ (gold) key [
+					as [ A small gold key with an intricate design.
+					is portable.
+				]
+				can open (if not locked) [
+					...
+				]
+				cannot open (if locked) as "It is locked"
+			]
+			has lamp on here ~ (brass) lamp [
+				is portable, not lit.
+				as
+					if lit [ 
+						A brass aladdin's lamp casting a warm light across {here}.
+					else [  
+						A brass aladdin's lamp.
+					]
+				]
+				can light if not wet [
+					is lit as [
+						The lamp stutters then bursts into light filling {here} with a warm glow.
+					]
+				]
+				removes dark if lit
+				gives flickering if here is windy
+				when wet extinguish!
+				when windy flicker!
+				to extinguish [
+					is not lit as [
+						The lamp's flame spurts and goes out
+					]
+				]
+			]
+			has brush here ~ (floor) brush [
+				as [A floor brush with a wooden handle and threadbear bristles]
+			]
+		]
+	]
+]
