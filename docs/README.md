@@ -2,11 +2,11 @@
 
 Experimental text adventure game system.
 
-# Status
+## Status
 
 Currently gork is a glorified pretty printer. It can parse simple game scripts and print them out. It doesn't actually run them yet.
 
-# Build
+## Build
 
 To build you first need to make and install goyacc and nex and put them in the bin directory.
 
@@ -22,7 +22,7 @@ To clean the intermediary files (for checking into Git etc):
 
     ./build --clean
 
-# Usage
+## Usage
 
 Gork currently reads stdin (this will change)
 
