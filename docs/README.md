@@ -1,8 +1,12 @@
-# GORK
+# Gork
 
-Gork is an experimental text adventure game system.
+Experimental text adventure game system.
 
-# BUILD
+# Status
+
+Currently gork is a glorified pretty printer. It can parse simple game scripts and print them out. It doesn't actually run them yet.
+
+# Build
 
 To build you first need to make and install goyacc and nex and put them in the bin directory.
 
@@ -18,7 +22,7 @@ To clean the intermediary files (for checking into Git etc):
 
     ./build --clean
 
-# USAGE
+# Usage
 
 Gork currently reads stdin (this will change)
 
