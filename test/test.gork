@@ -24,10 +24,7 @@ game [
 	]
 
 	location kitchen [
-	"1"
 		is dark, dusty
-	"2"
-	"3"
 
 		"a dingy kitchen" 
 

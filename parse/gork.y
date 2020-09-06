@@ -40,7 +40,7 @@ import (
 %%
 game:	/* empty */
 		| GAME BEGIN gexps END {
-//			fmt.Println($3)
+			fmt.Println($3)
 			fmt.Println()
 			$3.Pprint(os.Stdout,"")
 			fmt.Println()
