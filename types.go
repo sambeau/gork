@@ -7,44 +7,47 @@ import (
 
 const indent = "    "
 
-// - Evals - - - - - - - - - -
+// - Descriptions - - - - - - - - - -
 
-type Evaluatable interface {
-	Eval() Descriptions
+// All node types implement the Node interface.
+type Node interface {
+	Line() int
+	Column() int
 }
 
-type Block struct {
-	list []Evaluatable
+type Pos struct {
+	line   int
+	column int
 }
 
-func (b Block) Eval() Descriptions {
-	val := Descriptions{}
-	for _, x := range b.list {
-		val.Merge(x.Eval())
-	}
-	return val
+func (p Pos) Line() int {
+	return p.line
 }
 
-func (b *Block) Add(x Evaluatable) {
-	b.list = append(b.list, x)
+func (p Pos) Column() int {
+	return p.column
 }
 
-func (b *Block) AddStringArray(ss []string) {
-	d := &Descriptions{}
-	d.AddStringArray(ss)
-	b.Add(*d)
+// All expression nodes implement the Expr interface.
+type Expr interface {
+	Node
+	exprNode()
 }
 
-func (b Block) Describe() string {
-	return b.Eval().Describe()
+type Token struct {
+	Node
+	Text string
 }
 
 // - Descriptions - - - - - - - - - -
 
-type DString string
+type Text struct {
+	Node
+	String string
+}
 
-func (ds DString) Describe() string {
-	return string(ds)
+func (txt Text) Describe() string {
+	return string(txt.String)
 }
 
 // - - - - - - - - - - -
@@ -65,16 +68,6 @@ func (d *Descriptions) Add(describable Describable) {
 	d.list = append(d.list, describable)
 }
 
-func (d *Descriptions) AddString(s string) {
-	d.list = append(d.list, DString(s))
-}
-
-func (d *Descriptions) AddStringArray(ss []string) {
-	for _, s := range ss {
-		d.list = append(d.list, DString(s))
-	}
-}
-
 func (d *Descriptions) Merge(d1 Descriptions) {
 	d.list = append(d.list, d1.list...)
 }
@@ -90,10 +83,6 @@ func (d Descriptions) Describe() string {
 		nd = true
 	}
 	return s
-}
-
-func (d Descriptions) Eval() Descriptions {
-	return d
 }
 
 // - Traits - - - - - - - - - -

@@ -8,10 +8,10 @@ game [
 	version 1.0
 	date "4th September 2020"
 
-	["
+	"
 		It was a dark and stormy night…
 		Rain poured hard on the cobbled streets of East Mantoré
-	"]
+	"
 	
 	start hut
 
@@ -24,12 +24,16 @@ game [
 	]
 
 	location kitchen [
+	"1"
 		is dark, dusty
+	"2"
+	"3"
 
 		"a dingy kitchen" 
 
 //		exits 
 //			south hut, 
 //			down basement
+	"4"
 	]
 ]

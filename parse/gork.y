@@ -11,30 +11,31 @@ import (
 %}
 
 %union {
-  n  int
-  s  string
-  a  []string
-  d  Descriptions
-  g  Game
-  l  Location
-  t  Traits
-  x  Block
+  n int
+  s string
+  t Text
+  d Descriptions
+  g Game
+  l Location
+  i Traits
+  // x Block
+  k Token
 }
 
 
 %left COMMA
-%token AS BEGIN BY DATE DOWN EAST END EXIT GAME INTRO IS LOCATION 
-%token NORTH NOT SOUTH START TITLE TO UP VERSION WEST
+%token <k> AS BEGIN BY DATE DOWN EAST END EXIT GAME INTRO IS LOCATION 
+%token <k> NORTH NOT QUOTE SOUTH START TITLE TO UP VERSION WEST
 
 %token <n> NUM 
-%token <s> NAME STRING VNUM
-%token <a> STRINGS
+%token <s> NAME
+%token <t> TEXT VNUM
 
 %type <g> gexps gexp
 %type <l> lexps lexp
-%type <t> traitlist trait
-%type <d> xstrings
-%type <x> exe
+%type <i> traitlist trait
+%type <d> text texts
+// %type <x> exe
 
 %%
 game:	/* empty */
@@ -52,20 +53,22 @@ gexps:	gexp
 			mergo.Merge(&$$, $2);
 
 			$$.Title.Merge($2.Title)
-			$$.Description.Merge($2.Description)
 			$$.By.Merge($2.By)
 			$$.Date.Merge($2.Date)
 			$$.Version.Merge($2.Version)
+
+			$$.Description.Merge($2.Description)
+
 		}
 		;
 
 gexp:	/* empty */ { $$ = $$ }
-		| xstrings { $$.Description.Merge($1) }
-		| TITLE STRINGS { $$.Title.AddStringArray($2) }
-		| BY STRINGS { $$.By.AddStringArray($2)}
-		| DATE STRINGS { $$.Date.AddStringArray($2) }
-		| VERSION VNUM { $$.Version.AddString($2)}
+		| TITLE texts { $$.Title.Add($2) }
+		| BY texts { $$.By.Add($2) }
+		| DATE texts { $$.Date.Add($2) }
+		| VERSION VNUM {$$.Version.Add($2) }
 		| START NAME { $$.Current = $2 }
+		| texts { $$.Description.Add($1) }
 		| LOCATION NAME BEGIN lexps END {
 			if($$.Locations == nil){
 				$$.Locations = map[string]Location{}
@@ -90,7 +93,7 @@ lexp:	/* empty */ { $$ = $$ }
 			}
 			$$.Traits.Merge($2)
 		}
-		| STRINGS { $$.Description.AddStringArray($1) }
+		| texts { $$.Description.Add($1) }
 		;
 
 traitlist: trait { $$=$1 }
@@ -101,12 +104,15 @@ trait:	NOT NAME { $$=Traits{$2:false} }
 		| NAME { $$=Traits{$1:true} }
 		;
 
-xstrings: STRINGS { $$.AddStringArray($1) }
-		| BEGIN exe END { $$=$2.Eval() }
+texts: QUOTE text QUOTE { $$=$2 }
 		;
 
-exe: 	/* empty */ { $$ = $$ }
-		| STRINGS { $$.AddStringArray($1);fmt.Printf("[$1:%v]]",$1);fmt.Printf("[$$:%v]]",$$) }
-		;
+text: TEXT { $$.Add($1) }
+     | text TEXT { $$=$1;$$.Add($2) } 
+     ;
+
+// exe: 	/* empty */ { $$ = $$ }
+// 		| text { $$.Add($1);fmt.Printf("[$1:%v]]",$1);fmt.Printf("[$$:%v]]",$$) }
+// 		;
 
 %%

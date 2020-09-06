@@ -26,12 +26,17 @@
 
 /[0-9]+/ { lval.n,_ = strconv.Atoi(yylex.Text()); return NUM }
 /[a-zA-Z][a-zA-Z0-9_\-]*/ { lval.s = yylex.Text(); return NAME }
-/"[^"]*"/ { s:=yylex.Text();lval.a = whitespaceRx.Split(strings.TrimSpace(s[1:len(s)-1]), -1); return STRINGS }
-/[0-9]+(\.[0-9]+)*(-([a-zA-z0-9\.]+)?)*/{ lval.s = yylex.Text(); return VNUM }
+/[0-9]+(\.[0-9]+)*(-([a-zA-z0-9\.]+)?)*/{ lval.t = Text{Pos{yylex.Line(), yylex.Column()}, yylex.Text()}; return VNUM }
+
+/"[^"]*"/ < { }
+	/[ \t\n]+/  { }
+	/["]/      { return QUOTE}
+	/[^ \t\n"]+/  { lval.t = Text{Pos{yylex.Line(), yylex.Column()}, yylex.Text() }; return TEXT }
+> {  }
 
 /,/  { return COMMA  }
 
-/[ \t\n]+/  { /* Skip blanks and tabs. */ }
+/[ \t\n]+/  { /* Skip whitespace: spaces, tabs, newlines. */ }
 
 //
 
@@ -48,6 +53,10 @@ var whitespaceRx = regexp.MustCompile(`\s+`)
 
 func (yylex Lexer) Error(e string) {
 	fmt.Printf("%s:%v:%v: %s: at '%s'\n", "stdin", 1+yylex.Line(), 1+yylex.Column(), e, yylex.Text())
+}
+
+func (yylex *Lexer) SText() frame {
+	return yylex.stack[len(yylex.stack)-1]
 }
 
 func main() {
