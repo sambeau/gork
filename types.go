@@ -7,10 +7,10 @@ import (
 
 const indent = "    "
 
-// - Descriptions - - - - - - - - - -
+// - Texts - - - - - - - - - -
 
-// All node types implement the Node interface.
-type Node interface {
+// All node types implement the Lexed interface.
+type Lexed interface {
 	Line() int
 	Column() int
 }
@@ -28,61 +28,153 @@ func (p Pos) Column() int {
 	return p.column
 }
 
-// All expression nodes implement the Expr interface.
-type Expr interface {
-	Node
-	exprNode()
-}
+// type Token struct {
+// 	Lexed
+// 	Text string
+// }
 
-type Token struct {
-	Node
-	Text string
-}
-
-// - Descriptions - - - - - - - - - -
+// - Texts - - - - - - - - - -
 
 type Text struct {
-	Node
-	String string
+	Lexed
+	string string
 }
 
-func (txt Text) Describe() string {
-	return string(txt.String)
+func (txt Text) String() string {
+	return "\"" + txt.string + "\""
+}
+
+// - Texts - - - - - - - - - -
+
+type Handle struct {
+	Lexed
+	string string
+}
+
+func (h Handle) String() string {
+	return "{" + h.string + "}"
 }
 
 // - - - - - - - - - - -
 
-type Describable interface {
-	Describe() string
+type Texter interface {
+	String() string
 }
 
-type Descriptions struct {
-	list []Describable
+type Texts struct {
+	list []Texter
 }
 
-func (d Descriptions) Empty() bool {
+func (d Texts) Empty() bool {
 	return len(d.list) == 0
 }
 
-func (d *Descriptions) Add(describable Describable) {
-	d.list = append(d.list, describable)
+func (d *Texts) Add(text Texter) {
+	d.list = append(d.list, text)
 }
 
-func (d *Descriptions) Merge(d1 Descriptions) {
+func (d *Texts) Merge(d1 Texts) {
 	d.list = append(d.list, d1.list...)
 }
 
-func (d Descriptions) Describe() string {
+func (d Texts) String() string {
 	s := ""
 	nd := false
-	for _, describable := range d.list {
+	for _, texts := range d.list {
 		if nd {
 			s += " "
 		}
-		s += describable.Describe()
+		s += texts.String()
 		nd = true
 	}
 	return s
+}
+func (d Texts) Evaluate() Texter {
+	return Texter(d)
+}
+
+// - Expr - - - - - - - - - -
+
+type Evaluatable interface {
+	Texter
+	Evaluate() Texter
+}
+
+type Block struct {
+	Pos
+	nodes []Evaluatable
+}
+
+func (x *Block) Add(n Evaluatable) {
+	x.nodes = append(x.nodes, n)
+}
+
+func (x Block) Evaluate() Texter {
+	val := Texter(Texts{})
+	for _, e := range x.nodes {
+		val = e.Evaluate()
+	}
+	return val
+}
+
+func (x Block) String() string {
+	s := "("
+	nd := false
+	for _, node := range x.nodes {
+		if nd {
+			s += " "
+		}
+		s += node.String()
+		nd = true
+	}
+	s += ")"
+	return s
+}
+
+type Node struct {
+	Pos
+	node Evaluatable
+}
+
+func (n Node) String() string {
+	return n.node.String()
+}
+
+func (n Node) Evaluate() Texter {
+	return n.node.Evaluate()
+}
+
+type IfNode struct {
+	Pos
+	Cond Node
+	Then Block
+	Else Block
+}
+
+func (n IfNode) String() string {
+	return "if " + n.Cond.String() + " then " + n.Then.String() + " else " + n.Else.String()
+}
+
+func (n IfNode) Evaluate() Texter {
+	return n.Cond.Evaluate()
+}
+
+type IsCond struct {
+	Pos
+	Name  string
+	Truth bool
+}
+
+func (n IsCond) String() string {
+	if !n.Truth {
+		return "is not " + n.Name
+	} else {
+		return "is " + n.Name
+	}
+}
+
+func (n IsCond) Evaluate() Texter {
+	return Text{n.Pos, n.Name}
 }
 
 // - Traits - - - - - - - - - -
@@ -115,14 +207,14 @@ func (t Traits) Pprint(w io.Writer, i string) {
 
 type Location struct {
 	Name        string
-	Description Descriptions
+	Description Texts
 	Traits      Traits
 }
 
 func (l Location) Pprint(w io.Writer, i string) {
 	i2 := i + indent
 	fmt.Fprintf(w, "%slocation %s [\n", i, l.Name)
-	fmt.Fprintf(w, "%s\"%s\"\n", i2, l.Description.Describe())
+	fmt.Fprintf(w, "%s%s\n", i2, l.Description.String())
 	l.Traits.Pprint(w, i2)
 	fmt.Fprintf(w, "%s]\n", i)
 }
@@ -130,11 +222,11 @@ func (l Location) Pprint(w io.Writer, i string) {
 // - Game - - - - - - - - - -
 
 type Game struct {
-	Title       Descriptions
-	By          Descriptions
-	Description Descriptions
-	Version     Descriptions
-	Date        Descriptions
+	Title       Texts
+	By          Texts
+	Description Texts
+	Version     Texts
+	Date        Texts
 	Locations   map[string]Location
 	Current     string
 }
@@ -142,21 +234,21 @@ type Game struct {
 func (g Game) Pprint(w io.Writer, i string) {
 	i2 := i + indent
 	fmt.Fprintf(w, "%sgame [\n", i)
-	fmt.Fprintf(w, "%stitle \"%s\"\n", i2, g.Title.Describe())
+	fmt.Fprintf(w, "%stitle %s\n", i2, g.Title.String())
 	if !g.By.Empty() {
-		fmt.Fprintf(w, "%sby \"%s\"\n", i2, g.By.Describe())
+		fmt.Fprintf(w, "%sby %s\n", i2, g.By.String())
 	}
 	fmt.Fprintf(w, "%s\n", i2)
 	if !g.Version.Empty() {
-		fmt.Fprintf(w, "%sversion %s\n", i2, g.Version.Describe())
+		fmt.Fprintf(w, "%sversion %s\n", i2, g.Version.String())
 	}
 	if !g.Date.Empty() {
-		fmt.Fprintf(w, "%sdate \"%s\"\n", i2, g.Date.Describe())
+		fmt.Fprintf(w, "%sdate %s\n", i2, g.Date.String())
 	}
 	if !g.Version.Empty() || !g.Date.Empty() {
 		fmt.Fprintf(w, "%s\n", i2)
 	}
-	fmt.Fprintf(w, "%s\"%s\"\n", i2, g.Description.Describe())
+	fmt.Fprintf(w, "%s%s\n", i2, g.Description.String())
 	fmt.Fprintf(w, "%s\n", i2)
 	fmt.Fprintf(w, "%sstart %s\n", i2, g.Current)
 	fmt.Fprintf(w, "%s\n", i2)

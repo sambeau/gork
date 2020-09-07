@@ -2,15 +2,15 @@
 
 game [
 
-	title "The Horror In The Hut"
+	title "The {Horror} In The Hut"
 
 	by "Sam Phillips"
 	version 1.0
-	date "4th September 2020"
+	date "{day} {month} {year}"
 
 	"
 		It was a dark and stormy night…
-		Rain poured hard on the cobbled streets of East Mantoré
+		Rain poured hard on the cobbled streets of {place} East Mantoré
 	"
 	
 	start hut
@@ -26,11 +26,12 @@ game [
 	location kitchen [
 		is dark, dusty
 
-		"a dingy kitchen" 
+		"a" (if is raining then "dingy" else "jolly") "kitchen"
+		
 
 //		exits 
 //			south hut, 
 //			down basement
-	"4"
+
 	]
 ]
