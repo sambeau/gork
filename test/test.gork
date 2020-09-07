@@ -1,6 +1,6 @@
 // test file for gork
 
-game [
+game horror-hut [
 
 	title "The {Horror} In The Hut"
 

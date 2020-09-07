@@ -45,11 +45,12 @@ var game Game
 
 %%
 game:	/* empty */
+		| GAME NAME BEGIN gexps END {
+			$4.Name = $2
+			game = $4
+		}
 		| GAME BEGIN gexps END {
-			// fmt.Println($3)
-			// fmt.Println()
-			// $3.Pprint(os.Stdout,"")
-			// fmt.Println()
+			$3.Name = "Untitled"
 			game = $3
 		}
 		;
@@ -134,12 +135,12 @@ expression: /* empty */ {}
 		| node {$$.Add($1)}
 		;
 
-node:  texts {$$.node = $1}
-		| IF cond THEN expression {$$.node=IfNode{Cond:$2, Then:$4}}
-		| IF cond THEN expression ELSE expression {$$.node=IfNode{Cond:$2, Then:$4, Else: $6}}
+node:  texts {$$.Node = $1}
+		| IF cond THEN expression {$$.Node=IfNode{Cond:$2, Then:$4}}
+		| IF cond THEN expression ELSE expression {$$.Node=IfNode{Cond:$2, Then:$4, Else: $6}}
 		;
 
-cond: 	IS NAME {$$.node = IsCond{Pos{0,0},$2,true}}
-		| IS NOT NAME {$$.node = IsCond{Pos{0,0},$3,false}}
+cond: 	IS NAME {$$.Node = IsCond{Pos{0,0},$2,true}}
+		| IS NOT NAME {$$.Node = IsCond{Pos{0,0},$3,false}}
 		;
 %%

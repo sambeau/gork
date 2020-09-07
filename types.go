@@ -16,16 +16,16 @@ type Lexed interface {
 }
 
 type Pos struct {
-	line   int
-	column int
+	LineNo   int
+	ColumnNo int
 }
 
 func (p Pos) Line() int {
-	return p.line
+	return p.LineNo
 }
 
 func (p Pos) Column() int {
-	return p.column
+	return p.ColumnNo
 }
 
 // type Token struct {
@@ -37,22 +37,22 @@ func (p Pos) Column() int {
 
 type Text struct {
 	Lexed
-	string string
+	StringV string
 }
 
 func (txt Text) String() string {
-	return "\"" + txt.string + "\""
+	return txt.StringV
 }
 
 // - Texts - - - - - - - - - -
 
 type Handle struct {
 	Lexed
-	string string
+	StringV string
 }
 
 func (h Handle) String() string {
-	return "{" + h.string + "}"
+	return "{" + h.StringV + "}"
 }
 
 // - - - - - - - - - - -
@@ -62,25 +62,25 @@ type Texter interface {
 }
 
 type Texts struct {
-	list []Texter
+	List []Texter
 }
 
 func (d Texts) Empty() bool {
-	return len(d.list) == 0
+	return len(d.List) == 0
 }
 
 func (d *Texts) Add(text Texter) {
-	d.list = append(d.list, text)
+	d.List = append(d.List, text)
 }
 
 func (d *Texts) Merge(d1 Texts) {
-	d.list = append(d.list, d1.list...)
+	d.List = append(d.List, d1.List...)
 }
 
 func (d Texts) String() string {
 	s := ""
 	nd := false
-	for _, texts := range d.list {
+	for _, texts := range d.List {
 		if nd {
 			s += " "
 		}
@@ -102,16 +102,16 @@ type Evaluatable interface {
 
 type Block struct {
 	Pos
-	nodes []Evaluatable
+	Nodes []Evaluatable
 }
 
 func (x *Block) Add(n Evaluatable) {
-	x.nodes = append(x.nodes, n)
+	x.Nodes = append(x.Nodes, n)
 }
 
 func (x Block) Evaluate() Texter {
 	val := Texter(Texts{})
-	for _, e := range x.nodes {
+	for _, e := range x.Nodes {
 		val = e.Evaluate()
 	}
 	return val
@@ -120,7 +120,7 @@ func (x Block) Evaluate() Texter {
 func (x Block) String() string {
 	s := "("
 	nd := false
-	for _, node := range x.nodes {
+	for _, node := range x.Nodes {
 		if nd {
 			s += " "
 		}
@@ -133,15 +133,15 @@ func (x Block) String() string {
 
 type Node struct {
 	Pos
-	node Evaluatable
+	Node Evaluatable
 }
 
 func (n Node) String() string {
-	return n.node.String()
+	return n.Node.String()
 }
 
 func (n Node) Evaluate() Texter {
-	return n.node.Evaluate()
+	return n.Node.Evaluate()
 }
 
 type IfNode struct {
@@ -222,6 +222,7 @@ func (l Location) Pprint(w io.Writer, i string) {
 // - Game - - - - - - - - - -
 
 type Game struct {
+	Name     	string
 	Title       Texts
 	By          Texts
 	Description Texts
