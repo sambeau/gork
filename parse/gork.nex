@@ -50,22 +50,20 @@
 package main
 
 import (
-	"os"
 	"regexp"
 	"strconv"
 	"fmt"
 )
 
 var whitespaceRx = regexp.MustCompile(`\s+`)
+var lexError bool = false
 
 func (yylex Lexer) Error(e string) {
 	fmt.Printf("%s:%v:%v: %s: at '%s'\n", "stdin", 1+yylex.Line(), 1+yylex.Column(), e, yylex.Text())
+	lexError = true
 }
 
-func (yylex *Lexer) SText() frame {
-	return yylex.stack[len(yylex.stack)-1]
-}
-
-func main() {
-  yyParse(NewLexer(os.Stdin))
+func parse(in io.Reader) (Game, bool) {
+  yyParse(NewLexer(in))
+  return game,lexError
 }

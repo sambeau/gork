@@ -2,11 +2,13 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	// "fmt"
+	// "os"
 
     "github.com/imdario/mergo"
 )
+
+var game Game
 
 %}
 
@@ -44,10 +46,11 @@ import (
 %%
 game:	/* empty */
 		| GAME BEGIN gexps END {
-			fmt.Println($3)
-			fmt.Println()
-			$3.Pprint(os.Stdout,"")
-			fmt.Println()
+			// fmt.Println($3)
+			// fmt.Println()
+			// $3.Pprint(os.Stdout,"")
+			// fmt.Println()
+			game = $3
 		}
 		;
 

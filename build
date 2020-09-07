@@ -5,10 +5,10 @@ if [ $# -eq 1 ] && [ $1 == '-v' ]
 then
 	echo Building gork...
 	tail -n +1 <<< `./bin/goyacc -o gork.y.go -v /tmp/gork.y.output parse/gork.y`
-	go build -v -o gork types.go gork.y.go gork.n.go
+	go build -v -o gork gork.go types.go gork.y.go gork.n.go
 else
 	tail -n +1 <<< `./bin/goyacc -o gork.y.go -v /tmp/gork.y.output parse/gork.y` > /tmp/goyacc.out
-	go build -o gork types.go gork.y.go gork.n.go
+	go build -o gork gork.go types.go gork.y.go gork.n.go
 fi
 if [ $# -eq 1 ] && [ $1 == '--clean' ]
 then

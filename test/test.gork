@@ -8,6 +8,8 @@ game [
 	version 1.0
 	date "{day} {month} {year}"
 
+	//is night, raining
+
 	"
 		It was a dark and stormy night…
 		Rain poured hard on the cobbled streets of {place} East Mantoré
