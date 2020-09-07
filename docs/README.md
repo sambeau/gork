@@ -6,15 +6,15 @@ Experimental text adventure game system.
 
 Currently gork is a glorified pretty printer. It can parse simple game scripts and print them out. It doesn't actually run them yet.
 
+(this will change)
+
 ## Build
 
-To build you first need to make and install goyacc and nex and put them in the bin directory.
-
-To build the binary:
+To install the tools and build the binary:
 
     ./build
 
-To see some debug info as you build (e.g. lexer conflicts):
+To see some debug info as you build (e.g. parser conflicts):
 
     ./build -v
 

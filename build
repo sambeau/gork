@@ -1,15 +1,57 @@
 #!/bin/bash
 set -e
-./bin/nex -e -o gork.n.go parse/gork.nex
-if [ $# -eq 1 ] && [ $1 == '-v' ]
+
+function makebin {
+	if [[ ! -d bin ]]
+	then
+	    echo "make bin/..."
+		mkdir -p bin
+	fi	
+}
+
+function installnex {
+	makebin
+	if [[ ! -f bin/nex ]]
+	then
+		echo Installing nex...
+		export GOPATH=/tmp/go
+		go get github.com/blynn/nex
+		mv /tmp/go/bin/nex bin
+	fi
+}
+
+function installgoyacc {
+	makebin
+	if [[ ! -f bin/goyacc ]]
+	then
+		echo Installing goyacc...
+		go get golang.org/x/tools/cmd/goyacc
+		mv /tmp/go/bin/goyacc bin
+	fi
+}
+
+function installtools {
+	installnex
+	installgoyacc
+}
+
+if [ $# -eq 0 ]
 then
-	echo Building gork...
-	tail -n +1 <<< `./bin/goyacc -o gork.y.go -v /tmp/gork.y.output parse/gork.y`
-	go build -v -o gork gork.go types.go gork.y.go gork.n.go
-else
+	installtools
+	./bin/nex -e -o gork.n.go parse/gork.nex
 	tail -n +1 <<< `./bin/goyacc -o gork.y.go -v /tmp/gork.y.output parse/gork.y` > /tmp/goyacc.out
 	go build -o gork gork.go types.go gork.y.go gork.n.go
 fi
+
+if [ $# -eq 1 ] && [ $1 == '-v' ]
+then
+	installtools
+	echo Building gork...
+	./bin/nex -e -o gork.n.go parse/gork.nex
+	tail -n +1 <<< `./bin/goyacc -o gork.y.go -v /tmp/gork.y.output parse/gork.y`
+	go build -v -o gork gork.go types.go gork.y.go gork.n.go
+fi
+
 if [ $# -eq 1 ] && [ $1 == '--clean' ]
 then
 	echo Cleaning gork...
@@ -17,4 +59,9 @@ then
 	echo - `rm -v gork.n.go`
 	echo - `rm -v gork.y.go`
 	echo - `rm -v gork`
+fi
+
+if [ $# -eq 1 ] && [ $1 == '--tools' ]
+then
+	installtools
 fi
