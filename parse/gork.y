@@ -75,6 +75,12 @@ gexp:	/* empty */ { $$ = $$ }
 		| DATE texts { $$.Date.Add($2) }
 		| VERSION VNUM {$$.Version.Add($2) }
 		| START NAME { $$.Current = $2 }
+		| IS traitlist {
+			if($$.Traits == nil){
+				$$.Traits = Traits{}
+			}
+			$$.Traits.Merge($2)
+		}
 		| texts { $$.Description.Add($1) }
 		| LOCATION NAME BEGIN lexps END {
 			if($$.Locations == nil){

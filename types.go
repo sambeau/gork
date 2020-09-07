@@ -227,6 +227,7 @@ type Game struct {
 	Description Texts
 	Version     Texts
 	Date        Texts
+	Traits      Traits
 	Locations   map[string]Location
 	Current     string
 }
