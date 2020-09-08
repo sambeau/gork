@@ -222,7 +222,7 @@ func (l Location) Pprint(w io.Writer, i string) {
 // - Game - - - - - - - - - -
 
 type Game struct {
-	Name     	string
+	Name        string
 	Title       Texts
 	By          Texts
 	Description Texts

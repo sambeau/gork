@@ -1,5 +1,7 @@
 github.com/blynn/nex v0.0.0-20200222124853-f06fb288caba h1:w8jozaz1mW9DG4quPSLdiPf3QxQhWC6ZCANt7aM32NQ=
 github.com/blynn/nex v0.0.0-20200222124853-f06fb288caba/go.mod h1:FYQGyGHZWt/nYpr26buSZp4+WR8dN3LB800EGQ1VAz4=
+github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815 h1:bWDMxwH3px2JBh6AyO7hdCn/PkvCZXii8TGj7sbtEbQ=
+github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815/go.mod h1:WwZ+bS3ebgob9U8Nd0kOddGdZWjyMGR8Wziv+TBNwSE=
 github.com/imdario/mergo v0.3.11 h1:3tnifQM4i+fbajXKBHXWEH+KvNHqojZ778UH75j3bGA=
 github.com/imdario/mergo v0.3.11/go.mod h1:jmQim1M+e3UYxmgPu/WyfjB3N3VflVyUjjjwH0dnCYA=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=

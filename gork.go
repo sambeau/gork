@@ -4,21 +4,24 @@ package main
 
 import (
 	"bytes"
-	"fmt"
-	"os"
-    "encoding/gob"
-    "log"
-	"io/ioutil"
 	"compress/zlib"
 	"crypto/sha256"
+	"encoding/gob"
+	"fmt"
+	"github.com/docopt/docopt-go"
+	"io/ioutil"
+	"log"
+	"os"
 	"time"
 )
 
+const version = "0.0.1"
 const fileVersion = "0,0"
+const identifier = "GORK!"
 const ENDH = '\x0a'
 const ENDC = '\x03'
 
-func init(){
+func init() {
 	gob.Register(Text{})
 	gob.Register(Texts{})
 	gob.Register(Pos{})
@@ -33,12 +36,12 @@ func interleave(in string) string {
 	n := 0
 	c := ""
 	out := ""
-	for _,s := range in {
+	for _, s := range in {
 		switch n {
 		case 0:
 			c = "?"
 		case 1:
-			c = "%"
+			c = "%%"
 		case 2:
 			c = "??"
 		case 3:
@@ -53,27 +56,28 @@ func interleave(in string) string {
 			c = "?\\"
 		}
 		out += c + string(s)
-		n +=1 
+		n += 1
 		if n == 8 {
-			n=0
+			n = 0
 		}
 	}
 	return out
 }
 
 func saveGame(filename string, game Game) {
-	var gamefile bytes.Buffer        
+	var gamefile bytes.Buffer
 	w := zlib.NewWriter(&gamefile)
 
-    enc := gob.NewEncoder(w) 
-    err := enc.Encode(game)
-    if err != nil {
-        log.Fatal("encode error:", err)
-    }
-    w.Flush()
-	
+	enc := gob.NewEncoder(w)
+	err := enc.Encode(game)
+	if err != nil {
+		log.Fatal("encode error:", err)
+	}
+	w.Flush()
+
 	header := fmt.Sprintf(
-		"GORK|%s|%s|%s|%s|%s%c",
+		"%s|%s|%s|%s|%s|%s%c",
+		identifier,
 		fileVersion,
 		game.Name,
 		game.Version.String(),
@@ -87,66 +91,127 @@ func saveGame(filename string, game Game) {
 
 	header += fmt.Sprintf("%x%c", checksum.Sum(nil), ENDC)
 
-	var b bytes.Buffer 
+	var b bytes.Buffer
 	b.WriteString(header)
-    b.Write(gamefile.Bytes())
+	b.Write(gamefile.Bytes())
 
-    err = ioutil.WriteFile(filename, b.Bytes(), 0644)
-    if err != nil {
-        log.Fatal("save error:", err)
-    }
+	err = ioutil.WriteFile(filename, b.Bytes(), 0644)
+	if err != nil {
+		log.Fatal("save error:", err)
+	}
 }
 
 func loadGame(filename string) Game {
 	dat, err := ioutil.ReadFile(filename)
 	if err != nil {
-	log.Fatal("file read error:", err)
+		log.Fatal("file read error:", err)
 	}
 	bb := bytes.NewBuffer(dat)
 	s, err := bb.ReadString(ENDC)
 	if err != nil {
-	log.Fatal("Buffer read error:", err)
+		log.Fatal("buffer read error:", err)
 	}
-	fmt.Println(s)
+	if len(s) == 0 {
+		log.Fatal("file corrupt")
+	}
 	r, err := zlib.NewReader(bb)
 	if err != nil {
-	log.Fatal("zlib error:", err)
+		log.Fatal("zlib error:", err)
 	}
 
 	dec := gob.NewDecoder(r) // Will read from gamefile.
 	if err != nil {
-	log.Fatal("decode error 1:", err)
+		log.Fatal("decode error 1:", err)
 	}
 
 	game := Game{}
 	err = dec.Decode(&game)
 	if err != nil {
-	log.Fatal("decode error 2:", err)
+		log.Fatal("decode error 2:", err)
 	}
 	return game
 }
 
+type options struct {
+	compile    bool
+	run        bool
+	save       bool
+	file       string
+	sourcefile string
+	gamefile   string
+}
+
+func parseArgs() options {
+	usage := `Gork! - Experimental text adventure interpreter
+
+Usage:
+  gork <file>
+  gork -r <sourcefile>
+  gork -c <sourcefile> [-o <gamefile>]
+  gork -h | --help | --version
+
+Options:
+  -h --help     Show this screen.
+  --version     Show version.
+  -c --compile  Compile source file.
+  -o --outfile  Where to save compiled game.
+  -r --run      Run source file directly.`
+
+	args, _ := docopt.ParseArgs(usage, nil, version)
+
+	options := options{}
+
+	options.compile, _ = args.Bool("--compile")
+	options.run, _ = args.Bool("--run")
+	options.save, _ = args.Bool("--outfile")
+
+	options.file, _ = args.String("<file>")
+	options.sourcefile, _ = args.String("<sourcefile>")
+	options.gamefile, _ = args.String("<gamefile>")
+
+	return options
+}
+
+func runGame(game Game) {
+	game.Pprint(os.Stdout, "")
+}
+
 func main() {
-	game, err := parse(os.Stdin)
 
-	if !err {
-		fmt.Println(game)
+	options := parseArgs()
 
-		fmt.Println()
-		game.Pprint(os.Stdout,"")
-		fmt.Println()
+	// run a game file
+	if options.file != "" {
+		game := loadGame(options.file)
+		runGame(game)
+		os.Exit(0)
+	}
 
-		saveGame("/tmp/game.gork",game)
+	//compile a source file to a game file
+	if options.compile || options.run {
 
-		//
-		
-		g := loadGame("/tmp/game.gork")
+		infile, err := os.Open(options.sourcefile)
+		if err != nil {
+			log.Fatal("Can't open file:", err)
+		}
 
-		fmt.Println()
-		fmt.Println(g)
-		fmt.Println()
+		game, isErr := parse(infile)
+		if isErr {
+			os.Exit(1)
+		}
 
-		g.Pprint(os.Stdout,"")
+		if options.run {
+			runGame(game)
+			os.Exit(0)
+		}
 
+		// otherwise save it
+		gamefile := options.gamefile
+		if gamefile == "" {
+			gamefile = game.Name
+		}
+		gamefilename := gamefile + ".gork"
+		fmt.Printf("Compiling to %s\n", gamefilename)
+		saveGame(gamefilename, game)
 	}
 }
