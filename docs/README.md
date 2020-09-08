@@ -1,4 +1,4 @@
-# Gork
+# Gork!
 
 Experimental text adventure game system.
 
@@ -24,7 +24,7 @@ To clean the intermediary files (for checking into Git etc):
 
 ## Usage
 
-Gork can be used to compile and run game files. Source files can be run directly or can be compiled to a binary format.
+Gork! can be used to compile and run game files. Source files can be run directly or can be compiled to a binary format.
 
     Gork! - Experimental text adventure interpreter
 
