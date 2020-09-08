@@ -24,6 +24,19 @@ To clean the intermediary files (for checking into Git etc):
 
 ## Usage
 
-Gork currently reads stdin (this will change)
+Gork can be used to compile and run game files. Source files can be run directly or can be compiled to a binary format.
 
-    ./gork < test/test.gork
+    Gork! - Experimental text adventure interpreter
+
+    Usage:
+      gork <file>
+      gork -r <sourcefile>
+      gork -c <sourcefile> [-o <gamefile>]
+      gork -h | --help | --version
+
+    Options:
+      -h --help     Show this screen.
+      --version     Show version.
+      -c --compile  Compile source file.
+      -o --outfile  Where to save compiled game.
+      -r --run      Run source file directly.
