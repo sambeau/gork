@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"compress/zlib"
 	"crypto/sha256"
@@ -12,6 +13,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -173,7 +175,31 @@ Options:
 }
 
 func runGame(game Game) {
-	game.Pprint(os.Stdout, "")
+	// game.Pprint(os.Stdout, "")
+
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println(game.Title)
+	fmt.Println("By", game.By)
+	fmt.Println("")
+	fmt.Println(game.Description)
+
+	for {
+		fmt.Print("-> ")
+		text, _ := reader.ReadString('\n')
+		// convert CRLF to LF
+		text = text[:len(text)-1]
+
+		if strings.Compare("hi", text) == 0 {
+			fmt.Println("Hello, Yourself!")
+		}
+		if strings.Compare("quit", strings.ToLower(text)) == 0 ||
+			strings.Compare("goodbye", strings.ToLower(text)) == 0 ||
+			strings.Compare("bye", strings.ToLower(text)) == 0 {
+			fmt.Println("Goodbye.")
+			os.Exit(0)
+		}
+	}
+
 }
 
 func main() {
